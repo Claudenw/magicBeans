@@ -1,8 +1,8 @@
-package org.xenei.magicBeans.test;
+package org.xenei.magicBeans.test.partialMagic;
 
 import org.xenei.magicBeans.MagicBean;
 
-public interface MagicA2
+public interface PartialMagicA
 {
 	public int getA();
 	public void setA( int a );

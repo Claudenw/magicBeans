@@ -2,7 +2,8 @@ package org.xenei.magicBeans.test;
 
 import org.xenei.magicBeans.MagicBean;
 
-public interface MagicB2
+@MagicBean
+public interface ClasspathMagicB
 {
 	public String getB();
 	public void setB( String a );
