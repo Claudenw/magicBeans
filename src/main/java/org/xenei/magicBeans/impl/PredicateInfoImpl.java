@@ -56,6 +56,7 @@ import org.xenei.jena.entities.impl.handlers.ResourceHandler;
 import org.xenei.jena.entities.impl.handlers.UriHandler;
 import org.xenei.jena.entities.impl.handlers.VoidHandler;
 import org.xenei.magicBeans.Factory;
+import org.xenei.magicBeans.MagicBean;
 
 /**
  * The parsed information about a predicate method.
@@ -249,6 +250,11 @@ public class PredicateInfoImpl implements PredicateInfo {
 		this.hashCode = pi.hashCode;
 	}
 
+	public static boolean isPredicate( Method method)
+    {
+		return method.getAnnotation( Predicate.class ) != null;
+    }
+    
 
 
 	/**
@@ -332,7 +338,10 @@ public class PredicateInfoImpl implements PredicateInfo {
 			final Object[] args) {
 		try {
 			resource.getModel().enterCriticalSection( Lock.READ );
-
+			if (args.length == 0)
+			{
+				return resource.hasProperty(p);
+			}
 			return resource.hasProperty( p, objectHandler.createRDFNode( args[0] ) );
 		} finally {
 			resource.getModel().leaveCriticalSection();

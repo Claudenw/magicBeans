@@ -58,25 +58,30 @@ public class SubjectInfoImpl implements SubjectInfo {
         extractMagicInterfaces( implementedClass );
     }
     
+    public boolean isMagicBean() {
+    	return isMagicBean( implementedClass );
+    }
+    
+    private static boolean isMagicBean( Class<?> clazz)
+    {
+    	return null !=  clazz.getDeclaredAnnotation( MagicBean.class);
+    }
+    
     private void extractMagicInterfaces( Class<?> clazz )
     {
-		if (clazz.getSuperclass().getAnnotation( MagicBean.class) != null)
+    	if (clazz.isArray())
+    	{
+    		return;
+    	}
+    	
+		if (isMagicBean( clazz ))
 		{
-    		if (!magicInterfaces.add( clazz.getSuperclass()))
-    		{
-    			extractMagicInterfaces( clazz.getSuperclass() );
-    		}
+    		magicInterfaces.add( clazz);    		
 		}
 
 		for (Class<?> subClazz : clazz.getInterfaces())
     	{
-    		if (subClazz.getAnnotation( MagicBean.class) != null)
-    		{
-	    		if (!magicInterfaces.add( subClazz))
-	    		{
-	    			extractMagicInterfaces( clazz );
-	    		}
-    		}
+    		extractMagicInterfaces( subClazz );	    	   	
     	}
     }
     

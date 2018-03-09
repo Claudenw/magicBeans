@@ -11,7 +11,7 @@ import org.xenei.jena.entities.impl.SubjectInfoImpl;
 public interface Factory
 {
 	
-	static final Factory INSTANCE = new FactoryImpl();
+	static final Factory INSTANCE = new FactoryImpl();	
 	
 	static <T> T read( Resource r, Class<T> clazz) throws MissingAnnotation
 	{

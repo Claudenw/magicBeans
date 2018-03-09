@@ -3,8 +3,10 @@ package org.xenei.magicBeans;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -18,10 +20,13 @@ import org.xenei.jena.entities.MissingAnnotation;
 import org.xenei.jena.entities.ResourceWrapper;
 import org.xenei.jena.entities.SubjectInfo;
 import org.xenei.jena.entities.annotations.Predicate;
+import org.xenei.jena.entities.annotations.Subject;
 import org.xenei.jena.entities.cache.ModelInterceptor.Intercepted;
 import org.xenei.jena.entities.impl.ActionType;
+import org.xenei.magicBeans.impl.PredicateInfoImpl;
 import org.xenei.magicBeans.impl.ResourceEntityProxy;
 import org.xenei.magicBeans.impl.SubjectInfoImpl;
+
 
 import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.MethodInterceptor;
@@ -40,7 +45,7 @@ public class FactoryImpl implements Factory
 	@SuppressWarnings("unchecked")
 	public <T> T makeInstance( Object source, SubjectInfoImpl subjectInfo ) throws MissingAnnotation
 	{
-		List<Class<?>> classes = new ArrayList<Class<?>>( subjectInfo.getMagicInterfaces().size()+2);
+		Set<Class<?>> classes = new LinkedHashSet<Class<?>>( subjectInfo.getMagicInterfaces().size()+2);
 		if (subjectInfo.getImplementedClass().isInterface()) {
             classes.add( subjectInfo.getImplementedClass() );
         }		
@@ -58,13 +63,12 @@ public class FactoryImpl implements Factory
             classes.add( Intercepted.class );
         }
         final MethodInterceptor interceptor = new ResourceEntityProxy( this, resolvedResource, subjectInfo );
-        final Class<?>[] classArray = new Class<?>[classes.size()];
-
+        
         final Enhancer e = new Enhancer();
         if (!subjectInfo.getImplementedClass().isInterface()) {
             e.setSuperclass( subjectInfo.getImplementedClass() );
         }
-        e.setInterfaces( classes.toArray( classArray ) );
+        e.setInterfaces( classes.toArray( new Class<?>[classes.size()] ) );
         e.setCallback( interceptor );
         return (T) e.create();
 		
@@ -158,7 +162,7 @@ public class FactoryImpl implements Factory
             for (final Method method : clazz.getMethods()) {
                 try {
                     final ActionType actionType = ActionType.parse( method.getName() );
-                    if (method.getAnnotation( Predicate.class ) != null) {
+                    if (PredicateInfoImpl.isPredicate(method) || subjectInfo.isMagicBean()) {
                         foundAnnotation = true;
                         if (ActionType.GETTER == actionType) {
                             parser.parse( method );
@@ -167,7 +171,7 @@ public class FactoryImpl implements Factory
                         }
                     }
                 } catch (final IllegalArgumentException expected) {
-                    // not an action type ignore method
+                    // not an action type ignore meannotationClassthod
                 }
 
             }
@@ -190,4 +194,7 @@ public class FactoryImpl implements Factory
         }
         return subjectInfo;
     }
+	 
+	 
+	 
 }
